@@ -37,8 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'crm ',
+    'crm',
     'graphene_django',
+    'rest_framework',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
