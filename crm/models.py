@@ -8,6 +8,7 @@ class Customer(models.Model):
 
     def __str__(self):
         return f"{self.name} {self.email}, {self.phone}"
+    
 class Product(models.Model):
     name = models.CharField(max_length=100, null=False, blank=False)
     description = models.TextField(blank=True, null=True)
