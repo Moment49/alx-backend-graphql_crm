@@ -34,12 +34,18 @@ class ProductsInput(graphene.InputObjectType):
     stock = graphene.Int()
     price =  graphene.Float()
 
+
+
+# Input Type for Orders data
+class OrderInput(graphene.InputObjectType):
+    product_ids = graphene.List(graphene.ID, required=True)
+    customer_id = graphene.ID(required=True)
+
+
+
 class CreateCustomer(graphene.Mutation):
     class Arguments:
         input = CustomerInput(required=True)
-        # name = graphene.String(required=True) 
-        # email = graphene.String(required=True) 
-        # phone = graphene.String(required=False) 
 
     customer = graphene.Field(CustomerType)
     message = graphene.String()
@@ -155,9 +161,33 @@ class CreateProduct(graphene.Mutation):
        
         return CreateProduct(product=create_product)
 
+class CreateOrders(graphene.Mutation):
+    class Arguments:
+        input = OrderInput(required=True)
+    
+    orders = graphene.List(OrderType)
+    order_date = graphene.Date()
+    total_amount = graphene.Float()
+
+    def mutate(root, info, input):
+        # Get the customer to see if it exists
+        if not Customer.objects.filter(pk=input.customer_id).exists():
+            raise Exception("Sorry Invalid customer id")
+        if not Product.objects.filter(pk__in=input.products_id).exists():
+            raise Exception("Sorry the products does not exist")
+        
+        # Create the order and calculate the total price from the products
+        products = Product.objects.filter(pk__in=input.products_id)
+        print(products)
+
+        Order.objects.create(customer=input.customer_id)
+
+        return CreateOrders(order_date=order_date)
+
+
+
 
 # QUERY 
-
 class Query(graphene.ObjectType):
     all_customers = graphene.List(CustomerType)
     products = graphene.List(ProductType)
