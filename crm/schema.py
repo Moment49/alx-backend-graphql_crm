@@ -159,11 +159,11 @@ class CreateProduct(graphene.Mutation):
 # QUERY 
 
 class Query(graphene.ObjectType):
-    customers = graphene.List(CustomerType)
+    all_customers = graphene.List(CustomerType)
     products = graphene.List(ProductType)
     orders = graphene.List(OrderType)
 
-    def resolve_customers(root, info, **kwargs):
+    def resolve_all_customers(root, info, **kwargs):
         return Customer.objects.all()
     
     def resolve_products(root, info, **kwargs):
