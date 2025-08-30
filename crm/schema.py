@@ -4,6 +4,7 @@ from .models import Customer, Product, Order
 import re
 from django.db import transaction, IntegrityError
 from decimal import Decimal
+from django.utils import timezone
 
 
 class CustomerType(DjangoObjectType):
@@ -19,7 +20,7 @@ class ProductType(DjangoObjectType):
 class OrderType(DjangoObjectType):
     class Meta:
         model = Order
-        fields = ("id", "customer", "products")
+        fields = ("id", "customer", "products", "order_date", "total_amount")
 
 
 # Create an input type for the customer data
@@ -35,11 +36,11 @@ class ProductsInput(graphene.InputObjectType):
     price =  graphene.Float()
 
 
-
 # Input Type for Orders data
 class OrderInput(graphene.InputObjectType):
     product_ids = graphene.List(graphene.ID, required=True)
     customer_id = graphene.ID(required=True)
+    order_date = graphene.DateTime(required=False)
 
 
 
@@ -161,28 +162,45 @@ class CreateProduct(graphene.Mutation):
        
         return CreateProduct(product=create_product)
 
-class CreateOrders(graphene.Mutation):
+class CreateOrder(graphene.Mutation):
     class Arguments:
         input = OrderInput(required=True)
     
-    orders = graphene.List(OrderType)
-    order_date = graphene.Date()
-    total_amount = graphene.Float()
+    order = graphene.Field(OrderType)
+   
+    @classmethod
+    def mutate(cls, root, info, input):
+        total_amount = 0
 
-    def mutate(root, info, input):
+        # Get the products to see if they exist
+        products = Product.objects.filter(pk__in=input.product_ids)
+
         # Get the customer to see if it exists
         if not Customer.objects.filter(pk=input.customer_id).exists():
-            raise Exception("Sorry Invalid customer id")
-        if not Product.objects.filter(pk__in=input.products_id).exists():
-            raise Exception("Sorry the products does not exist")
+            raise Exception("Sorry Invalid customer Id")
         
-        # Create the order and calculate the total price from the products
-        products = Product.objects.filter(pk__in=input.products_id)
-        print(products)
+        # Check if the product IDs are valid
+        if not input.product_ids:
+            raise Exception("Product IDs list cannot be empty")
+        
+        if not products.exists() or products.count() != len(input.product_ids):
+            raise Exception("No valid products found for the given IDs")
+        
 
-        Order.objects.create(customer=input.customer_id)
+        # Caculate the total price from the products
+        for product in products:
+            total_amount += product.price
+        
+        # Create the order
+        order_date = input.order_date or timezone.now()
+        customer = Customer.objects.get(pk=input.customer_id)
+        order = Order.objects.create(customer=customer, total_amount=total_amount, order_date=order_date)
+        order.save()
 
-        return CreateOrders(order_date=order_date)
+        # Associate an order with a product
+        order.products.set(products)
+
+        return CreateOrder(order=order)
 
 
 
@@ -207,6 +225,7 @@ class Mutation(graphene.ObjectType):
     create_customer = CreateCustomer.Field()
     bulk_create_customers = BulkCreateCustomers.Field()
     create_product = CreateProduct.Field()
+    create_order = CreateOrder.Field()
 
 
 

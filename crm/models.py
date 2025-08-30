@@ -22,6 +22,7 @@ class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="orders")
     products = models.ManyToManyField(Product, related_name="orders")
     order_date = models.DateTimeField(auto_now_add=True)
+    total_amount = models.DecimalField(max_digits=1000, decimal_places=2, default=0.00)
 
     def __str__(self):
         return f"Order #{self.id} for {self.customer.name}"
