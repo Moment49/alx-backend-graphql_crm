@@ -19,10 +19,8 @@ class CustomerFilter(django_filters.FilterSet):
     
 class ProductFilter(django_filters.FilterSet):
     name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
-    price = django_filters.NumberFilter(field_name='price', lookup_expr='incontains')
     price__gt = django_filters.NumberFilter(field_name='price', lookup_expr='gt')
     price__lt = django_filters.NumberFilter(field_name='price', lookup_expr='lt')
-    stock = django_filters.NumberFilter(field_name='stock', lookup_expr='exact')
     stock__gt = django_filters.NumberFilter(field_name='stock', lookup_expr='gt')
     stock__lt = django_filters.NumberFilter(field_name='stock', lookup_expr='lt')
     
@@ -34,9 +32,9 @@ class OrderFilter(django_filters.FilterSet):
     customer__name = django_filters.CharFilter(field_name='customer__name', lookup_expr='icontains')
     total_amount__gte = django_filters.NumberFilter(field_name='total_amount', lookup_expr='gt')
     total_amount__lte = django_filters.NumberFilter(field_name='total_amount', lookup_expr='lt')
-    total_amount = django_filters.NumberFilter(field_name='total_amount', lookup_expr='exact')
-    product_name = django_filters.CharFilter(field_name='product__name', lookup_expr='icontains')
-    order_date = django_filters.DateTimeFilter(field_name='order_date', lookup_expr='date')
+    product_name = django_filters.CharFilter(field_name='products__name', lookup_expr='icontains')
+    order_date_gt = django_filters.DateFilter(field_name="order_date", lookup_expr='gt')
+    order_date_lt = django_filters.DateFilter(field_name="order_date", lookup_expr='lt')
 
     class Meta:
         model = Order
