@@ -34,7 +34,7 @@ cust_without_orders = Customer.objects.exclude(orders__order_date__date__gte=one
 
 # Delete those customers and capture the number deleted
 deleted_cus_count, _ = cust_without_orders.delete()
-
+print(deleted_cus_count)
 # Append the result with timestamp to the log file
 with open(LOG_FILE, 'a') as f:
     f.write(f'{date.today()} - Deleted {deleted_cus_count} customers\n')
