@@ -5,7 +5,7 @@ import re
 from django.db import transaction, IntegrityError
 from decimal import Decimal
 from django.utils import timezone
-
+from crm.models import Product
 
 class CustomerType(DjangoObjectType):
     class Meta:
