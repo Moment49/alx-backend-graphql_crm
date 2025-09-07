@@ -41,11 +41,12 @@ INSTALLED_APPS = [
     'graphene_django',
     'rest_framework',
     'django_filters',
-    '   django_crontab'
+    'django_crontab'
 ]
 
 CRONJOBS = [
     ('*/5 * * * *', 'crm.cron.log_crm_heartbeat'),
+    ('0 */12 * * *', 'crm.cron.update_low_stock')
 ]
 
 
